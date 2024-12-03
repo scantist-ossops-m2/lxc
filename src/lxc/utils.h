@@ -46,11 +46,26 @@
 #define __S_ISTYPE(mode, mask) (((mode)&S_IFMT) == (mask))
 #endif
 
+#ifndef NSFS_MAGIC
+#define NSFS_MAGIC 0x6e736673
+#endif
+
 /* Useful macros */
 /* Maximum number for 64 bit integer is a string with 21 digits: 2^64 - 1 = 21 */
 #define LXC_NUMSTRLEN64 21
 #define LXC_LINELEN 4096
 #define LXC_IDMAPLEN 4096
+/* /proc/       =    6
+ *                +
+ * <pid-as-str> =   LXC_NUMSTRLEN64
+ *                +
+ * /fd/         =    4
+ *                +
+ * <fd-as-str>  =   LXC_NUMSTRLEN64
+ *                +
+ * \0           =    1
+ */
+#define LXC_PROC_PID_FD_LEN (6 + LXC_NUMSTRLEN64 + 4 + LXC_NUMSTRLEN64 + 1)
 
 /* returns 1 on success, 0 if there were any failures */
 extern int lxc_rmdir_onedev(char *path, const char *exclude);
@@ -392,6 +407,7 @@ void *must_realloc(void *orig, size_t sz);
 /* __typeof__ should be safe to use with all compilers. */
 typedef __typeof__(((struct statfs *)NULL)->f_type) fs_type_magic;
 extern bool has_fs_type(const char *path, fs_type_magic magic_val);
+extern bool fhas_fs_type(int fd, fs_type_magic magic_val);
 extern bool is_fs_type(const struct statfs *fs, fs_type_magic magic_val);
 extern bool lxc_nic_exists(char *nic);
 
